@@ -25,11 +25,12 @@ function displayProducts() {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         console.log(res);
+        buyWhat();
     });
 }
 
 //grab data function
-function grabData(item) {
+function grabData(item,amount) {
     connection.query("SELECT * FROM products WHERE ?",
     [
         {
@@ -40,33 +41,32 @@ function grabData(item) {
         if (err) throw err;
         console.log(res);
         purchaseItem = res[0].product_name;
-        console.log(purchaseItem);
+        // console.log(purchaseItem);
         originalQty = res[0].stock_quantity;
-        console.log(originalQty);
+        // console.log(originalQty);
+        updateProduct(item,amount);
     })
 }
 
+//Update product function
 function updateProduct(item, amount) {
     console.log("Updating...\n");
-    var query = connection.query(
+    console.log(originalQty);
+    connection.query(
         "UPDATE products SET ? WHERE ?",
         [
         {
-            id: item
+            stock_quantity: originalQty - amount
         },
         {
-            stock_quantity: originalQty - amount
+            id: item
         }
         ],
         function(err, res) {
-        console.log(res.affectedRows + " products updated!\n");
-        // Call deleteProduct AFTER the UPDATE completes
-        deleteProduct();
+        console.log(res);
         }
     );
 
-    // logs the actual query being run
-    console.log(query.sql);
 }
 
 
@@ -85,7 +85,8 @@ function buyWhat() {
         }
     ]).then(function(inquirerResponse) {
         console.log(inquirerResponse.item);
-        grabData(inquirerResponse.item);
+        grabData(inquirerResponse.item, inquirerResponse.qty);
+        // updateProduct(inquirerResponse.item, inquirerResponse.qty);
     });
 }
 
@@ -97,4 +98,3 @@ function buyWhat() {
 
 //if enough quantity, display total cost of transaction and reduce from stock
 displayProducts();
-buyWhat();
