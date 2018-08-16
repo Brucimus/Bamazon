@@ -1,9 +1,10 @@
 var inquirer = require('inquirer');
 var mysql = require('mysql');
+var table = require('markdown-table');
 var purchaseItem = "";
-var purchaseQty = 0;
 var purchasePrice = 0;
 var originalQty = 0;
+var products = ["id","product","department","price","stock"];
 
 //connect to database
 var connection = mysql.createConnection({
@@ -24,7 +25,10 @@ var connection = mysql.createConnection({
 function displayProducts() {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
-        console.log(res);
+        console.log(table(
+            [products],
+            ))
+        // console.log(res);
         buyWhat();
     });
 }
@@ -39,19 +43,17 @@ function grabData(item,amount) {
     ]
     , function(err, res) {
         if (err) throw err;
-        console.log(res);
         purchaseItem = res[0].product_name;
-        // console.log(purchaseItem);
         originalQty = res[0].stock_quantity;
-        // console.log(originalQty);
-        updateProduct(item,amount);
+        purchasePrice = res[0].price;
+        updateProduct(item,amount,purchaseItem,purchasePrice);
     })
 }
 
 //Update product function
-function updateProduct(item, amount) {
-    console.log("Updating...\n");
-    console.log(originalQty);
+function updateProduct(item, amount, productName,productPrice) {
+    // console.log("Updating...\n");
+    // console.log(originalQty);
     connection.query(
         "UPDATE products SET ? WHERE ?",
         [
@@ -63,7 +65,10 @@ function updateProduct(item, amount) {
         }
         ],
         function(err, res) {
-        console.log(res);
+        if (err) throw err;
+        // console.log(res);
+        console.log("\nPurchased: " + productName + "\nPurchased Qty: " + amount + "\nTotal Cost: $" + (amount * productPrice))
+        displayProducts();
         }
     );
 
@@ -84,7 +89,7 @@ function buyWhat() {
             name: "qty"
         }
     ]).then(function(inquirerResponse) {
-        console.log(inquirerResponse.item);
+        // console.log(inquirerResponse.item);
         grabData(inquirerResponse.item, inquirerResponse.qty);
         // updateProduct(inquirerResponse.item, inquirerResponse.qty);
     });
