@@ -5,6 +5,7 @@ var purchaseItem = "";
 var purchasePrice = 0;
 var originalQty = 0;
 var products = ["id","product","department","price","stock"];
+var tableArray = [products];
 
 //connect to database
 var connection = mysql.createConnection({
@@ -25,9 +26,19 @@ var connection = mysql.createConnection({
 function displayProducts() {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
-        console.log(table(
-            [products],
-            ))
+        
+        //clear out products array
+        tableArray = [products];
+        var tempArray = [];
+
+        //goes through items and lists products in table array
+        for (var i = 0; i < res.length; i++) {
+            tempArray = [res[i].id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity];
+            tableArray.push(tempArray);
+        }
+        console.log("\n" + table(
+            tableArray
+            ) + "\n")
         // console.log(res);
         buyWhat();
     });
