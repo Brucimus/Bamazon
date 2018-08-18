@@ -57,6 +57,11 @@ function grabData(item,amount) {
         purchaseItem = res[0].product_name;
         originalQty = res[0].stock_quantity;
         purchasePrice = res[0].price;
+        if (originalQty - amount <= 0) {
+            console.log("Sorry. Insufficient stock. Please choose something else.")
+            displayProducts();
+            return;
+        }
         updateProduct(item,amount,purchaseItem,purchasePrice);
     })
 }
