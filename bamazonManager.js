@@ -98,7 +98,77 @@ function lowInventory() {
 }
 
 //add to inventory function
-
+function addInventory() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What item ID do you want to add stock?",
+            name: "item"
+        },
+        {
+            type: "input",
+            message: "How many additional would you like to add?",
+            name: "quantity"
+        }
+    ]).then(function(inquirerResponse) {
+        connection.query("UPDATE products SET ? WHERE ?",
+        [
+            {
+                stock_quantity: inquirerResponse.quantity
+            },
+            { 
+                id: inquirerResponse.item
+            }
+        ],
+        function(err, res) {
+            if (err) throw err;
+            
+            console.log(res);
+            doWhat();
+        });
+    })
+}
 
 //add new product function
+function addProduct() {
+    inquirer.prompt([
+    {
+        type: "input",
+        message: "What item ID do you want to add stock?",
+        name: "product"
+    },
+    {
+        type: "input",
+        message: "How many additional would you like to add?",
+        name: "department"
+    },
+    {
+        type: "input",
+        message: "What item ID do you want to add stock?",
+        name: "price"
+    },
+    {
+        type: "input",
+        message: "How many additional would you like to add?",
+        name: "stock"
+    }
+    ]).then(function(inquirerResponse) {
+    connection.query("INSERT INTO products SET ?",
+        {
+            product_name: inquirerResponse.product,
+            department_name: inquirerResponse.department,
+            price: inquirerResponse.price,
+            stock_quantity: inquirerResponse.stock
+        },
+        function(err, res) {
+            if (err) throw err;
+            console.log(res.affectedRows + " product inserted!\n");
+            // Call updateProduct AFTER the INSERT completes
+            updateProduct();
+        }
+    )
+    })
+}
+
+
 doWhat();
