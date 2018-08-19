@@ -3,6 +3,7 @@ var mysql = require('mysql');
 var table = require('markdown-table');
 var products = ["id","product","department","price","stock"];
 var tableArray = [products];
+var originalQty = 0;
 
 
 //connect to database
@@ -97,6 +98,41 @@ function lowInventory() {
     });
 }
 
+//grab data function
+function grabData(item,amount) {
+    connection.query("SELECT * FROM products WHERE ?",
+    [
+        {
+            id: item
+        }
+    ]
+    , function(err, res) {
+        if (err) throw err;
+        originalQty = res[0].stock_quantity;
+        updateProduct(item,amount);
+    })
+}
+
+//Update product function
+function updateProduct(item, amount) {
+    connection.query(
+        "UPDATE products SET ? WHERE ?",
+        [
+        {
+            stock_quantity: originalQty + parseInt(amount)
+        },
+        {
+            id: item
+        }
+        ],
+        function(err, res) {
+        if (err) throw err;
+        console.log("Update successful.");
+        viewProducts()
+        }
+    );
+}
+
 //add to inventory function
 function addInventory() {
     inquirer.prompt([
@@ -111,21 +147,7 @@ function addInventory() {
             name: "quantity"
         }
     ]).then(function(inquirerResponse) {
-        connection.query("UPDATE products SET ? WHERE ?",
-        [
-            {
-                stock_quantity: inquirerResponse.quantity
-            },
-            { 
-                id: inquirerResponse.item
-            }
-        ],
-        function(err, res) {
-            if (err) throw err;
-            
-            console.log(res);
-            doWhat();
-        });
+        grabData(inquirerResponse.item,inquirerResponse.quantity)   
     })
 }
 
@@ -134,22 +156,22 @@ function addProduct() {
     inquirer.prompt([
     {
         type: "input",
-        message: "What item ID do you want to add stock?",
+        message: "What item would you like to add?",
         name: "product"
     },
     {
         type: "input",
-        message: "How many additional would you like to add?",
+        message: "What department?",
         name: "department"
     },
     {
         type: "input",
-        message: "What item ID do you want to add stock?",
+        message: "What's the price?",
         name: "price"
     },
     {
         type: "input",
-        message: "How many additional would you like to add?",
+        message: "How many would you like to stock?",
         name: "stock"
     }
     ]).then(function(inquirerResponse) {
@@ -162,9 +184,9 @@ function addProduct() {
         },
         function(err, res) {
             if (err) throw err;
-            console.log(res.affectedRows + " product inserted!\n");
+            console.log("Product inserted!\n");
             // Call updateProduct AFTER the INSERT completes
-            updateProduct();
+            doWhat();
         }
     )
     })
