@@ -2,7 +2,7 @@
 Command Line Storefront using Node.js
 
 ![GitHub Logo](\images\CustomerBuy.JPG)
-Format: ![Customer making a purchase.](url)
+Format: ![Customer making a purchase.](https://brucimus.github.com/images/CustomerBuy.JPG)
 
 ![GitHub Logo](\images\CustomerNoStock.JPG)
 Format: ![Example of when an out of stock situation occurs.](url)
